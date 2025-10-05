@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { Link } from "react-router-dom";
 
+import Swal from "sweetalert2";
+
 export default function ListadoEmpleados() {
   const urlBase = "http://localhost:8080/api/empleados";
 
@@ -23,6 +25,34 @@ export default function ListadoEmpleados() {
     }
   };
 
+  const eliminarEmpleado = async (id) => {
+    await axios.delete(`${urlBase}/${id}`);
+    cargarEmpleados();
+  };
+
+  const confirmarEliminacion = (id) => {
+    console.log("Clic en eliminar");
+    Swal.fire({
+      title: "¿Desea eliminar este empleado?",
+      showCancelButton: true,
+      confirmButtonText: "Sí",
+      cancelButtonText: 'No',
+      confirmButtonColor: "#d33",
+      calcelButtonColor: "#6c757d",
+      reverserButtons: true,
+      width: "300px",
+      background: "#fff",
+      customClass: {
+        popup: "shadow-sm rounded-3",
+      },
+      backdrop:false, // Esto hace que No bloquee toda la pantalla
+    }).then((result) => {
+      if (result.isConfirmed) {
+        eliminarEmpleado(id);
+      }
+    });
+  };
+
   return (
     <div className="container">
       <div className="container text-center" style={{ margin: "30px" }}>
@@ -36,7 +66,7 @@ export default function ListadoEmpleados() {
             <th scope="col">Empleado</th>
             <th scope="col">Departamento</th>
             <th scope="col">Sueldo</th>
-            <th scope="col">Acciones</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
@@ -50,16 +80,29 @@ export default function ListadoEmpleados() {
                 <td>
                   <NumericFormat
                     value={empleado.sueldo}
-                    displayType={'text'}
-                    thousandSeparator=','
-                    prefix={'$'}
+                    displayType={"text"}
+                    thousandSeparator=","
+                    prefix={"$"}
                     decimalScale={2}
                     fixedDecimalScale
                   />
                 </td>
                 <td className="text-center">
                   <div>
-                    <Link to={`/editar/${empleado.idEmpleado}`} className='btn btn-warning btn-sm me-3'>Editar</Link>
+                    <Link
+                      to={`/editar/${empleado.idEmpleado}`}
+                      className="btn btn-warning btn-sm me-3  rounded-circle"
+                      title="Editar"
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                    </Link>
+                    <button
+                      onClick={() => confirmarEliminacion(empleado.idEmpleado)}
+                      className="btn btn-danger btn-sm  rounded-circle"
+                      title="Eliminar"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
                   </div>
                 </td>
               </tr>
